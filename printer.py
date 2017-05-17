@@ -22,6 +22,8 @@ def run(printer_no):
     # Windows OS
     elif sys.platform.startswith('win'):
         print_windows(printer_name)
+    else:
+        raise OSError('Operating system not supported.')
 
     return increment_printer_no(printer_no)
 

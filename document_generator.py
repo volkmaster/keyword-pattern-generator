@@ -1,3 +1,4 @@
+import sys
 from os import listdir
 from io import open
 import random
@@ -47,7 +48,13 @@ def load_cache_text(keyword, type):
 
 
 def load_data_text(file_name, type):
-    return unidecode(open('data/text/' + type + '/' + file_name, 'r', encoding='iso8859_2').read())
+    if sys.platform.startswith('darwin') or sys.platform.startswith('linux'):
+        encoding = 'iso8859_2'
+    elif sys.platform.startswith('win'):
+        encoding = 'cp1250'
+    else:
+        raise OSError('Operating system not supported.')
+    return unidecode(open('data/text/' + type + '/' + file_name, 'r', encoding=encoding).read())
 
 
 def load_cache_image(keyword, file_name):
