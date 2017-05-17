@@ -1,7 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QLineEdit, QPushButton, QMessageBox
-from PyQt5.QtCore import pyqtSlot, QTimer
-import api_caller
+from PyQt5.QtCore import pyqtSlot
 
 __author__ = 'Ziga Vucko'
 
@@ -49,7 +48,6 @@ class App(QMainWindow):
             self.before_print()
 
             # Call the APIs, prepare documents and print them.
-            api_caller.run(text)
 
             self.after_print()
 

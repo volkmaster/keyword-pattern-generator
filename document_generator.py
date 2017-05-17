@@ -5,6 +5,8 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
 from unidecode import unidecode
+import util
+import settings
 
 
 __author__ = 'Ziga Vucko'
@@ -12,9 +14,11 @@ __author__ = 'Ziga Vucko'
 
 A4_SIZE = (2480, 3508)
 N_COLS = [2, 3, 4]
+MAX_BLANKS = 5
 TYPEFACES = {
-    'background': ['Times New Roman', 'Garamond', 'Helvetica Bold', 'Impact'],
-    'overlay': ['Times New Roman', 'Garamond', 'Helvetica Bold', 'Impact']
+    'background': ['Times New Roman', 'Garamond'],
+    'overlay': ['Helvetica Bold', 'Impact'],
+    'serial-number': 'Impact'
 }
 FONT_SIZES = {
     'background': 35,
@@ -29,7 +33,8 @@ FONT_SIZES = {
         'Garamond': 150,
         'Helvetica Bold': 150,
         'Impact': 165
-    }
+    },
+    'serial-number': 70
 }
 
 
@@ -41,8 +46,8 @@ def load_cache_text(keyword, type):
     return unidecode(open('cache/' + keyword + '/text/' + type + '.txt', 'r').read())
 
 
-def load_data_text(file_name):
-    return unidecode(open('data/text/' + file_name, 'r', encoding='iso8859_2').read())
+def load_data_text(file_name, type):
+    return unidecode(open('data/text/' + type + '/' + file_name, 'r', encoding='iso8859_2').read())
 
 
 def load_cache_image(keyword, file_name):
@@ -61,13 +66,17 @@ def get_background_text_lines(text, line_chars=30):
     return lines
 
 
-def get_overlay_text_lines(text, line_chars=30):
+def get_cache_overlay_text_lines(text, line_chars=30):
     lines = text.replace('\n\n\n', '\n').replace('\n\n', '\n').splitlines()
     if len(lines) > 0:
         line = lines[np.argmax(list(map(lambda l: len(l), lines)))]
         return textwrap.wrap(line, width=line_chars)
     else:
         return []
+
+
+def get_data_overlay_text_lines(text, line_chars=30):
+    return textwrap.wrap(text, width=line_chars)
 
 
 def build_text_canvas(lines, font, width, height, align='left', angle=0, transparent=False):
@@ -85,9 +94,11 @@ def build_text_canvas(lines, font, width, height, align='left', angle=0, transpa
 
 
 def generate_background_text(keywords, typeface):
-    # randomly choose the number of columns of background text
+    random.shuffle(keywords)
+
+    # Randomly choose the number of columns of background text.
     n_cols = random.choice(N_COLS)
-    print('Number of background columns:', n_cols)
+    print('\t\tNumber of background columns:', n_cols)
 
     font = load_font(typeface, font_size=FONT_SIZES['background'])
     char_width, char_height = font.getsize('a')
@@ -100,23 +111,41 @@ def generate_background_text(keywords, typeface):
 
     lines = []
 
-    # format text lines from Wikipedia cache text
+    files = listdir('data/text/long')
+    random.shuffle(files)
+    unused_files = list(files)
+
+    # Format text lines from the randomly chosen long data texts.
     i = 0
-    while len(lines) < n_cols * column_lines and i < len(keywords):
-        lines += get_background_text_lines(text=load_cache_text(keywords[i], 'wikipedia'), line_chars=column_chars)
+    while len(lines) < n_cols * column_lines and i < len(files):
+        lines += get_background_text_lines(text=load_data_text(files[i], 'long'), line_chars=column_chars)
+
+        # Append random number of new lines (blank space).
+        lines += random.randint(0, MAX_BLANKS) * ['\n']
+
+        unused_files.remove(files[i])
+        i += 1
+        if random.random() < 0.3:
+            break
+
+    # Format text lines from Wikipedia cache text.
+    if len(lines) < n_cols * column_lines:
+        lines += get_background_text_lines(text=load_cache_text(keywords[0], 'wikipedia'), line_chars=column_chars)
+
+        # Append random number of new lines (blank space).
+        lines += random.randint(0, MAX_BLANKS) * ['\n']
+
+    # Format text lines from the randomly chosen long data texts (if necessary).
+    i = 0
+    while len(lines) < n_cols * column_lines and i < len(unused_files):
+        lines += get_background_text_lines(text=load_data_text(unused_files[i], 'long'), line_chars=column_chars)
+
+        # Append random number of new lines (blank space).
+        lines += random.randint(0, MAX_BLANKS) * ['\n']
+
         i += 1
 
-    # format text lines from the randomly chosen data texts (if necessary, not enough Wikipedia content)
-    if len(lines) < n_cols * column_lines:
-        files = listdir('data/text')
-        random.shuffle(files)
-
-        i = 0
-        while len(lines) < n_cols * column_lines and i < len(files):
-            lines += get_background_text_lines(text=load_data_text(files[i]), line_chars=column_chars)
-            i += 1
-
-    # use formatted text lines to build column canvases
+    # Use formatted text lines to build column canvases.
     canvases = []
     for i in range(n_cols):
         text = build_text_canvas(lines[i * column_lines:(i + 1) * column_lines], font, column_width, column_height)
@@ -132,27 +161,28 @@ def generate_images(keywords):
     keyword = random.choice(keywords)
     images = []
 
-    # randomly select two images from the cache
+    # Randomly select two images from the cache.
     files = listdir('cache/' + keyword + '/images/')
     random.shuffle(files)
     for file_name in files[:2]:
         img_cache = load_cache_image(keyword, file_name)
         images.append(img_cache)
 
-    # randomly select two images from the data
+    # Randomly select two images from the data.
     files = listdir('data/images')
     random.shuffle(files)
-    for file_name in files[:2]:
+    for file_name in files[:3]:
         img_data = load_data_image(file_name)
         width, height = img_data.size
         img_data = img_data.resize((round(1.5 * width), round(1.5 * height)), Image.ANTIALIAS)
         images.append(img_data)
 
-    # sort images by size in descending order
+    # Sort images by size in descending order.
     images.sort(key=lambda img: img.size[0] * img.size[1], reverse=True)
 
+    # Resize the largest image (so that we have at least one very large image).
     width, height = images[0].size
-    images[0] = images[0].resize((1200, round(height * (1200. / width))), Image.ANTIALIAS)
+    images[0] = images[0].resize((1500, round(height * (1500. / width))), Image.ANTIALIAS)
 
     return images
 
@@ -164,16 +194,25 @@ def generate_twitter_overlay_text(keywords, typeface):
     char_height = font.getsize('a')[1]
     max_chars = 25
 
-    # format a text line from Twitter cache text using just the longest tweet
-    n_lines = 0
-    while n_lines is 0:
-        lines = get_overlay_text_lines(text=load_cache_text(keyword, 'twitter'), line_chars=max_chars)
-        n_lines = len(lines)
-        keyword = random.choice(keywords)
-    text_width = round(font.getsize(lines[np.argmax(list(map(lambda l: len(l), lines)))])[0] * 1.15)
-    text_height = n_lines * char_height
+    if random.random() < 0.5:
+        # Format a text line from Twitter cache text using just the longest tweet.
+        # Iterate because some 'twitter.txt' files might be empty (no tweets exist for the given keyword).
+        n_lines = 0
+        while n_lines is 0:
+            lines = get_cache_overlay_text_lines(text=load_cache_text(keyword, 'twitter'), line_chars=max_chars)
+            n_lines = len(lines)
+            keyword = random.choice(keywords)
+        text_width = round(font.getsize(lines[np.argmax(list(map(lambda l: len(l), lines)))])[0] * 1.15)
+        text_height = n_lines * char_height
+    else:
+        # Format a text line from a random long data text.
+        files = listdir('data/text/short')
+        random.shuffle(files)
+        lines = get_data_overlay_text_lines(text=load_data_text(files[0], 'short'), line_chars=max_chars)
+        text_width = round(font.getsize(lines[np.argmax(list(map(lambda l: len(l), lines)))])[0] * 1.15)
+        text_height = len(lines) * char_height
 
-    # use formatted text line to build the canvas
+    # Use formatted text line to build the canvas.
     return build_text_canvas(lines, font, text_width, text_height, align='right', transparent=True)
 
 
@@ -182,40 +221,57 @@ def generate_quote_overlay_text(typeface):
     char_height = font.getsize('-')[1]
     max_chars = 50
 
-    # format a text line from one of the data texts that is maximally 50 characters long
+    # Format a text line from one of the data texts that is maximally 50 characters long.
     lines = []
 
-    files = listdir('data/text')
+    files = listdir('data/text/short')
     random.shuffle(files)
     for file_name in files:
-        text = load_data_text(file_name)
+        text = load_data_text(file_name, 'short')
         if len(text) <= max_chars:
-            lines = get_overlay_text_lines(text=text, line_chars=max_chars)
+            lines = [text]
             break
 
-    text_width, text_height = font.getsize(lines[0])
+    text_width = font.getsize(lines[0])[0]
     text_height = char_height
 
-    # use formatted text line to build the canvas
+    # Use formatted text line to build the canvas.
     return build_text_canvas(lines, font, text_width, text_height, angle=90, transparent=True)
 
 
-def run(keywords):
-    # randomly choose the typefaces
+def generate_serial_number(serial_number):
+    font = load_font(TYPEFACES['serial-number'], font_size=FONT_SIZES['serial-number'])
+    char_height = font.getsize('a')[1]
+
+    # Format a text line representing the serial number of the document.
+    lines = ['BNC Print No %05d' % serial_number]
+    text_width = font.getsize(lines[0])[0]
+    text_height = char_height
+
+    # Use formatted text line to build the canvas.
+    return build_text_canvas(lines, font, text_width, text_height, transparent=True)
+
+
+def run(keywords, serial_number):
+    print(util.timestamp() + ' Generating a document with serial #' + str(serial_number) + ' from keywords: ' + str(keywords[:3]))
+
+    keywords = list(map(lambda k: k.lower().replace(' ', ''), keywords))
+
+    # Randomly choose the typefaces.
     background_typeface = random.choice(TYPEFACES['background'])
     overlay_typeface = random.choice(TYPEFACES['overlay'])
-    print('Background font:', background_typeface)
-    print('Overlay font:', overlay_typeface)
+    print('\t\tBackground font:', background_typeface)
+    print('\t\tOverlay font:', overlay_typeface)
 
-    # create a blank white canvas
+    # Create a blank white canvas.
     canvas = Image.new('RGB', A4_SIZE, (255, 255, 255))
 
-    # draw the text background text columns
+    # Draw the text background text columns.
     background_text_canvases = generate_background_text(keywords, background_typeface)
     for column_text_canvas in background_text_canvases:
         canvas.paste(column_text_canvas['text'], column_text_canvas['position'])
 
-    # draw images on top of the background text
+    # Draw images on top of the background text.
     positions = [
         [(150, 200), (800, 200), (1600, 200)],
         [(400, 600), (900, 600), (1500, 600)],
@@ -233,7 +289,7 @@ def run(keywords):
         canvas.paste(img, positions[i][curr])
         prev = curr
 
-    # draw the Twitter overlay text
+    # Draw the Twitter overlay text.
     twitter_overlay_text_canvas = generate_twitter_overlay_text(keywords, overlay_typeface)
     text_width, text_height = twitter_overlay_text_canvas.size
     twitter_pos = {
@@ -244,7 +300,7 @@ def run(keywords):
     }
     canvas.paste(twitter_overlay_text_canvas, (twitter_pos['x'], twitter_pos['y']), mask=twitter_overlay_text_canvas)
 
-    # draw the vertical quote overlay text
+    # Draw the vertical quote overlay text.
     quote_overlay_text_canvas = generate_quote_overlay_text(overlay_typeface)
     text_width, text_height = quote_overlay_text_canvas.size
     quote_pos = {
@@ -255,15 +311,31 @@ def run(keywords):
     }
     left_diff = twitter_pos['x']
     right_diff = A4_SIZE[0] - (twitter_pos['x'] + twitter_pos['width'])
-    if left_diff >= right_diff:
-        quote_pos['x'] = random.randint(0, twitter_pos['x'] - quote_pos['width'])
+    start_left = 0
+    end_left = twitter_pos['x'] - quote_pos['width']
+    start_right = twitter_pos['x'] + twitter_pos['width']
+    end_right = A4_SIZE[0] - quote_pos['width']
+    if left_diff >= right_diff and end_left >= 0:
+        quote_pos['x'] = random.randint(start_left, end_left)
+        quote_pos['y'] = random.randint(0, A4_SIZE[1] - quote_pos['height'])
+    elif start_right <= end_right:
+        quote_pos['x'] = random.randint(start_right, end_right)
+        quote_pos['y'] = random.randint(0, A4_SIZE[1] - quote_pos['height'])
     else:
-        quote_pos['x'] = random.randint(twitter_pos['x'] + twitter_pos['width'], A4_SIZE[0] - quote_pos['width'])
-    quote_pos['y'] = random.randint(0, A4_SIZE[1] - quote_pos['height'])
+        quote_pos['x'] = random.randint(0, A4_SIZE[0])
+        quote_pos['y'] = random.randint(0, A4_SIZE[1])
     canvas.paste(quote_overlay_text_canvas, (quote_pos['x'], quote_pos['y']), mask=quote_overlay_text_canvas)
 
-    # save the canvas to an image file
-    canvas.save('document.png', 'png')
+    # Draw the serial number overlay text.
+    serial_number_text_canvas = generate_serial_number(serial_number)
+    text_width, text_height = serial_number_text_canvas.size
+    serial_number_pos = {
+        'x': round(A4_SIZE[0] - 1.1 * text_width),
+        'y': round(A4_SIZE[1] * 0.965),
+        'width': text_width,
+        'height': text_height
+    }
+    canvas.paste(serial_number_text_canvas, (serial_number_pos['x'], serial_number_pos['y']), mask=serial_number_text_canvas)
 
-
-run(['diversification(marketingstrategy)', 'frankenstein'])
+    # Save the canvas to an image file.
+    canvas.save(settings.DOCUMENT_NAME, 'png')

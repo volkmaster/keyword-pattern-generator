@@ -16,7 +16,7 @@ def run(query):
     images_dir = root_dir + '/images'
 
     if not exists(root_dir):
-        print('Creating the directories "' + text_dir + '" and "' + images_dir + '"')
+        print('\t\tCreating the directories "' + text_dir + '" and "' + images_dir + '" and downloading the content')
 
         # Create the text and images directories for the given query.
         makedirs(text_dir)
@@ -28,4 +28,4 @@ def run(query):
         wikipedia_api.run(query, text_dir)
 
     else:
-        print('Content already exists in the directories "' + text_dir + '" and "' + images_dir + '" in cache')
+        print('\t\tContent already exists in the directories "' + text_dir + '" and "' + images_dir + '" in cache')

@@ -1,1 +1,0 @@
-We can’t move projects because of the meaning of the place where they’ve been built (context). A kiosk can stay years at the same place, but then disappear.
