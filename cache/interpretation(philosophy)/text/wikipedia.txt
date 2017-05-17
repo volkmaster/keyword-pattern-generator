@@ -1,0 +1,44 @@
+A philosophical interpretation is the assignment of meanings to various concepts, symbols, or objects under consideration. Two broad types of interpretation can be distinguished: interpretations of physical objects, and interpretations of concepts (Conceptual model).
+
+
+== Conceptual interpretations ==
+
+
+=== Aesthetic interpretation ===
+
+Interpretation is related to perceiving the things. An aesthetic interpretation is an explanation of the meaning of some work of art. An aesthetic interpretation expresses an understanding of a work of art, a poem, performance, or piece of literature. There may be different interpretations to same work by art by different people owing to their different perceptions or aims. All such interpretations are termed as 'aesthetic interpretations'. Some people, instead of interpreting work of art, believe in interpreting artist himself.
+
+
+=== Judicial interpretation ===
+
+A judicial interpretation is a conceptual interpretation that explains how the judiciary should interpret the law, particularly constitutional documents and legislation (see statutory interpretation).
+
+
+=== Logical interpretation ===
+
+In logic, an interpretation is an assignment of meaning to the symbols of a language. The formal languages used in mathematics, logic, and theoretical computer science are defined in solely syntactic terms, and as such do not have any meaning until they are given some interpretation. The general study of interpretations of formal languages is called formal semantics.
+
+
+=== Religious interpretation ===
+
+Religious interpretation and similarly religious self-interpretation define a section of religion-related studies (theology, comparative religion, reason) where attention is given to aspects of perception—where religious symbolism and the self-image of all those who hold religious views have important bearing on how others perceive their particular belief system and its adherents.
+
+
+== Scientific interpretation ==
+
+
+=== Descriptive interpretation ===
+
+An interpretation is a descriptive interpretation (also called a factual interpretation) if at least one of the undefined symbols of its formal system becomes, in the interpretation, the name of a physical object, or observable property. A descriptive interpretation is a type of interpretation used in science and logic to talk about empirical entities.
+
+
+=== Scientific model ===
+
+When scientists attempt to formalize the principles of the empirical sciences, they use an interpretation to model reality, in the same way logicians axiomatize the principles of logic. The aim of these attempts is to construct a formal system that will serve as a conceptual model of reality. Predictions or other statements drawn from such a formal system mirror or map the real world only insofar as these scientific models are true.
+
+
+== See also ==
+Philosophical theory
+
+
+== References ==
