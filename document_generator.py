@@ -1,4 +1,3 @@
-import sys
 from os import listdir
 from io import open
 import random
@@ -44,17 +43,11 @@ def load_font(typeface, font_size):
 
 
 def load_cache_text(keyword, type):
-    return unidecode(open('cache/' + keyword + '/text/' + type + '.txt', 'r').read())
+    return unidecode(open('cache/' + keyword + '/text/' + type + '.txt', 'r', encoding='utf_8').read())
 
 
 def load_data_text(file_name, type):
-    if sys.platform.startswith('darwin') or sys.platform.startswith('linux'):
-        encoding = 'iso8859_2'
-    elif sys.platform.startswith('win'):
-        encoding = 'cp1250'
-    else:
-        raise OSError('Operating system not supported.')
-    return unidecode(open('data/text/' + type + '/' + file_name, 'r', encoding=encoding).read())
+    return unidecode(open('data/text/' + type + '/' + file_name, 'r', encoding='iso8859_2').read())
 
 
 def load_cache_image(keyword, file_name):
