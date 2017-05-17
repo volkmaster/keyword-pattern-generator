@@ -9,7 +9,7 @@ import util
 __author__ = 'Ziga Vucko'
 
 
-PRINT_DELAY = 30 # 5 minutes
+PRINT_DELAY = 5 * 60  # 5 minutes
 RESTART_DELAY = 20 * 60  # 20 minutes
 
 
@@ -38,7 +38,7 @@ def main():
     # generate and print documents continuously every 5 minutes on different printers
     printer_no = 0
     while True:
-        if 10 < util.current_time().hour < 100:
+        if 10 < util.current_time().hour < 18:
             random.shuffle(keywords)
             document_generator.run(keywords[:3], serial_no)
             printer_no = printer.run(printer_no)

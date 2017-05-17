@@ -9,6 +9,7 @@ Word Image Collage (Brand New Coexistence Exhibition) application for constructi
 `conda install -c conda-forge google-api-python-client=1.6.2`  
 `pip install python-twitter`  
 `pip install wikipedia`  
+`pip install unidecode`  
 ### Config and run
 ##### Config `.env` file
 Copy `.env.example` to `.env` and fill out the listed parameters.
