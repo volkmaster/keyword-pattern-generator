@@ -8,7 +8,7 @@ Word Image Collage (Brand New Coexistence Exhibition) application for constructi
 `pip install python-dotenv`  
 `conda install -c conda-forge google-api-python-client`  
 `pip install python-twitter`  
-`pip install wikipedia`  
+`pip install wikipedia-api`  
 `pip install unidecode`  
 ### Config and run
 ##### Config `.env` file
