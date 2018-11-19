@@ -93,7 +93,7 @@ def build_text_canvas(lines, font, width, height, align='left', angle=0, transpa
     return canvas.rotate(angle=angle, expand=True) if angle is not 0 else canvas
 
 
-def generate_background_text(keywords, typeface):
+def generate_background_text(keywords, typeface, include_data):
     random.shuffle(keywords)
 
     # Randomly choose the number of columns of background text.
@@ -117,16 +117,18 @@ def generate_background_text(keywords, typeface):
 
     # Format text lines from the randomly chosen long data texts.
     i = 0
-    while len(lines) < n_cols * column_lines and i < len(files):
-        lines += get_background_text_lines(text=load_data_text(files[i], 'long'), line_chars=column_chars)
 
-        # Append random number of new lines (blank space).
-        lines += random.randint(0, MAX_BLANKS) * ['\n']
+    if include_data:
+        while len(lines) < n_cols * column_lines and i < len(files):
+            lines += get_background_text_lines(text=load_data_text(files[i], 'long'), line_chars=column_chars)
 
-        unused_files.remove(files[i])
-        i += 1
-        if random.random() < 0.3:
-            break
+            # Append random number of new lines (blank space).
+            lines += random.randint(0, MAX_BLANKS) * ['\n']
+
+            unused_files.remove(files[i])
+            i += 1
+            if random.random() < 0.3:
+                break
 
     # Format text lines from Wikipedia cache text.
     if len(lines) < n_cols * column_lines:
@@ -157,25 +159,27 @@ def generate_background_text(keywords, typeface):
     return canvases
 
 
-def generate_images(keywords):
+def generate_images(keywords, include_data):
     keyword = random.choice(keywords)
     images = []
+    n_cache_images = 2 if include_data else 4
 
-    # Randomly select two images from the cache.
+    # Randomly select two/four images from the cache.
     files = listdir('cache/' + keyword + '/images/')
     random.shuffle(files)
-    for file_name in files[:2]:
+    for file_name in files[:n_cache_images]:
         img_cache = load_cache_image(keyword, file_name)
         images.append(img_cache)
 
     # Randomly select two images from the data.
-    files = listdir('data/images')
-    random.shuffle(files)
-    for file_name in files[:3]:
-        img_data = load_data_image(file_name)
-        width, height = img_data.size
-        img_data = img_data.resize((round(1.5 * width), round(1.5 * height)), Image.ANTIALIAS)
-        images.append(img_data)
+    if include_data:
+        files = listdir('data/images')
+        random.shuffle(files)
+        for file_name in files[:3]:
+            img_data = load_data_image(file_name)
+            width, height = img_data.size
+            img_data = img_data.resize((round(1.5 * width), round(1.5 * height)), Image.ANTIALIAS)
+            images.append(img_data)
 
     # Sort images by size in descending order.
     images.sort(key=lambda img: img.size[0] * img.size[1], reverse=True)
@@ -252,8 +256,8 @@ def generate_serial_number(serial_number):
     return build_text_canvas(lines, font, text_width, text_height, transparent=True)
 
 
-def run(keywords, serial_number):
-    print(util.timestamp() + ' Generating a document with serial #' + str(serial_number) + ' from keywords: ' + str(keywords[:3]))
+def run(keywords, serial_number, include_data=False):
+    print(util.timestamp() + ' Generating a document with serial #' + str(serial_number) + ' from keywords: ' + str(keywords))
 
     keywords = list(map(lambda k: k.lower().replace(' ', ''), keywords))
 
@@ -267,7 +271,7 @@ def run(keywords, serial_number):
     canvas = Image.new('RGB', A4_SIZE, (255, 255, 255))
 
     # Draw the text background text columns.
-    background_text_canvases = generate_background_text(keywords, background_typeface)
+    background_text_canvases = generate_background_text(keywords, background_typeface, include_data)
     for column_text_canvas in background_text_canvases:
         canvas.paste(column_text_canvas['text'], column_text_canvas['position'])
 
@@ -281,7 +285,7 @@ def run(keywords, serial_number):
     ]
     random.shuffle(positions)
 
-    images = generate_images(keywords)
+    images = generate_images(keywords, include_data)
     curr, prev = 0, 0
     for i, img in enumerate(images):
         while curr is prev:

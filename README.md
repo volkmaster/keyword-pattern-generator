@@ -6,7 +6,7 @@ Word Image Collage (Brand New Coexistence Exhibition) application for constructi
 ##### Download and install anaconda 3 from https://www.continuum.io/downloads
 ##### Install additional Python libraries:
 `pip install python-dotenv`  
-`conda install -c conda-forge google-api-python-client=1.6.2`  
+`conda install -c conda-forge google-api-python-client`  
 `pip install python-twitter`  
 `pip install wikipedia`  
 `pip install unidecode`  
@@ -14,4 +14,11 @@ Word Image Collage (Brand New Coexistence Exhibition) application for constructi
 ##### Config `.env` file
 Copy `.env.example` to `.env` and fill out the listed parameters.
 ##### Run the program
-`python runner.py`  
+
+- Generate a document based on 3 random keywords:
+
+    `python runner.py`
+
+- Generate a document based on 3 given keywords (GUI):
+    
+    `python ui.py`
