@@ -1,8 +1,6 @@
 from os.path import exists
 from os import makedirs
-import google_api
-import twitter_api
-import wikipedia_api
+from api import google_api, twitter_api, wikipedia_api
 import util
 
 

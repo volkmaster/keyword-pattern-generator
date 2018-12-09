@@ -21,7 +21,8 @@ def search_images(service, query, size='xlarge', start=1):
 
 def run(query, images_dir):
     # Run the query to the Google Custom Search API.
-    print(util.timestamp() + ' Calling the Google Custom Search API, downloading images and saving the content to cache')
+    print(util.timestamp() + ' Calling the Google Custom Search API, downloading images for the keyword "' + query +
+          '" and saving them to cache')
 
     # Build a urllib opener to bypass website's blockade of the user-agent used by urllib.
     opener = urllib.request.build_opener()

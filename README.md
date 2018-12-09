@@ -19,6 +19,6 @@ Copy `.env.example` to `.env` and fill out the listed parameters.
 
     `python runner.py`
 
-- Generate a document based on 3 given keywords (GUI):
+- Generate a document based on up to 5 given keywords (GUI):
     
     `python ui.py`

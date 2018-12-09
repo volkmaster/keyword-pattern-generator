@@ -1,6 +1,6 @@
 import random
 import time
-import api_caller
+from api import api_caller
 import document_generator
 import printer
 import util

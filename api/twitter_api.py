@@ -8,7 +8,9 @@ __author__ = 'Ziga Vucko'
 
 def run(query, text_dir):
     # Run the query to the Twitter Search API.
-    print(util.timestamp() + ' Calling the Twitter Search API, downloading statuses and saving them to cache')
+    print(util.timestamp() + ' Calling the Twitter Search API, downloading statuses for the keyword "' + query +
+          '" and saving them to cache')
+
     api = twitter.Api(consumer_key=settings.TWITTER_CONSUMER_KEY,
                       consumer_secret=settings.TWITTER_CONSUMER_SECRET,
                       access_token_key=settings.TWITTER_ACCESS_TOKEN_KEY,
