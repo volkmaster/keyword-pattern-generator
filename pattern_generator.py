@@ -129,18 +129,6 @@ def generate_overlay_text(keywords, typeface):
     files = listdir('data/text/long')
     random.shuffle(files)
     unused_files = list(files)
-    # i = 0
-
-    # while len(lines) < n_cols * column_lines and i < len(files):
-    #     lines += get_overlay_text_lines(text=load_data_text(files[i], 'long'), line_chars=column_chars)
-    #
-    #     # Append random number of new lines (blank space).
-    #     lines += random.randint(0, MAX_BLANKS) * ['\n']
-    #
-    #     unused_files.remove(files[i])
-    #     i += 1
-    #     if random.random() < 0.3:
-    #         break
 
     # Format text lines from Wikipedia cache text.
     for keyword in keywords:
@@ -207,7 +195,7 @@ def generate_serial_number(serial_number):
     char_height = font.getsize('a')[1]
 
     # Format a text line representing the serial number of the document.
-    lines = ['BNC Print No %05d' % serial_number]
+    lines = ['Serial No %05d' % serial_number]
     text_width = font.getsize(lines[0])[0]
     text_height = char_height
 
@@ -215,12 +203,13 @@ def generate_serial_number(serial_number):
     return build_text_canvas(lines, font, text_width, text_height, transparent=True)
 
 
-def run(file, size, keywords, serial_number):
+def run(file, width, height, keywords, serial_number):
     global SIZE
 
-    print(util.timestamp() + ' Generating a pattern with serial #' + str(serial_number) + ' from keywords: ' + str(keywords))
+    print(util.timestamp() + ' Generating a pattern (%d x %d) with serial #%d from keywords: %s' %
+          (width, height, serial_number, ', '.join(keywords)))
 
-    SIZE = (size, size)
+    SIZE = (width, height)
     keywords = list(map(lambda k: k.lower().replace(' ', ''), keywords))
 
     # Randomly choose the typefaces.
@@ -264,7 +253,7 @@ def run(file, size, keywords, serial_number):
     text_width, text_height = serial_number_text_canvas.size
     serial_number_pos = {
         'x': round(SIZE[0] - 1.1 * text_width),
-        'y': round(SIZE[1] * 0.965),
+        'y': round(SIZE[1] - 1.1 * text_height),
         'width': text_width,
         'height': text_height
     }
@@ -273,6 +262,3 @@ def run(file, size, keywords, serial_number):
 
     # Save the canvas to an image file.
     canvas.save(file)
-
-
-#run('images/pattern.png', 2000, ['Michael Jordan', 'Charles Barkley'], 100)

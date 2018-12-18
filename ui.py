@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QLabel, QLineEdit, QPushButton
 from PyQt5.QtCore import pyqtSlot
 from api import api_caller
 from filtering import elastic_transform, japanify, pixelsort, smoothing, ripple_effect
@@ -11,6 +11,35 @@ __author__ = 'Ziga Vucko'
 
 
 FILTERS = ['Elastic transform (liquify)', 'Japanify', 'Pixel sorting', 'Smoothing', 'Ripple effect']
+FILTER_PARAMETERS = [('Alpha', '10000'), ('Density', '50'), ('Sorting path', 'diagonal'), ('Kernel size', '10'), ('K', '5')]
+
+PIXEL_SORTING_ALLOWED_PARAMETERS = [
+    'angled-line',
+    'circles',
+    'concentric',
+    'diagonal',
+    'diagonal-single',
+    'fill-circles',
+    'horizontal',
+    # 'random-walk',
+    # 'random-walk-horizontal',
+    # 'random-walk-vertical',
+    'vertical'
+]
+
+PIXEL_SORTING_PARAMETERS_HELP = [
+    ('angled-line,[angle=0]', 'Sort pixels in lines tilted at the given angle.'),
+    ('circles', 'Pixels are sorted in concentric circles about the center of the image.'),
+    ('concentric', 'Pixels are sorted in concentric rectangles.'),
+    ('diagonal', 'Pixels are sorted in diagonal lines.'),
+    ('diagonal-single', 'Pixels sorted in a single path that moves diagonally through the image.'),
+    ('fill-circles,[radius=100]', 'Covers the image in circles of the given radius.'),
+    ('horizontal', 'Pixels sorted horizontally.'),
+    # ('random-walk', 'Pixels sorted in random walks over the image.'),
+    # ('random-walk-horizontal', 'Pixels sorted in random walks moving horizontally over the image.'),
+    # ('random-walk-vertical', 'Pixels sorted in random walks moving vertically over the image.'),
+    ('vertical', 'Pixels sorted vertically.')
+]
 
 
 class App(QMainWindow):
@@ -18,20 +47,25 @@ class App(QMainWindow):
         super().__init__()
 
         self.title = 'Keyword Pattern Generator'
-        self.width = 600
-        self.height = 380
+        self.width = 850
+        self.height = 400
 
         self.label_title_keywords = None
         self.textboxes_keywords = [None, None, None, None, None]
 
         self.label_title_filters = None
-        self.textboxes_filters = [None for _ in FILTERS]
+        self.textboxes_numbers_filters = [None for _ in FILTERS]
         self.labels_filters = [None for _ in FILTERS]
+        self.labels_parameters_filters = [None for _ in FILTERS]
+        self.textboxes_parameters_filters = [None for _ in FILTERS]
+        self.button_help_pixel_sorting = None
 
         self.button_generate = None
 
-        self.label_size = None
-        self.textbox_size = None
+        self.label_width = None
+        self.textbox_width = None
+        self.label_height = None
+        self.textbox_height = None
 
         self.label_status = None
 
@@ -59,21 +93,39 @@ class App(QMainWindow):
             self.textboxes_keywords[i].textChanged.connect(self.on_keyword_change)
 
         # Create a title label for filters
-        self.label_title_keywords = QLabel('Order filters (1-5 / empty):', self)
+        self.label_title_keywords = QLabel('Order filters (1-5 / empty) and fill out parameters:', self)
         self.label_title_keywords.move(325, 10)
-        self.label_title_keywords.resize(250, 30)
+        self.label_title_keywords.resize(300, 30)
 
-        # Create textboxes for filters
-        for i in range(len(self.textboxes_filters)):
-            self.textboxes_filters[i] = QLineEdit(self)
-            self.textboxes_filters[i].move(325, 10 + (i + 1) * 40)
-            self.textboxes_filters[i].resize(30, 30)
+        # Create textboxes for filters (numbers)
+        for i in range(len(self.textboxes_numbers_filters)):
+            self.textboxes_numbers_filters[i] = QLineEdit(self)
+            self.textboxes_numbers_filters[i].move(325, 10 + (i + 1) * 40)
+            self.textboxes_numbers_filters[i].resize(30, 30)
 
         # Create labels for filters
         for i in range(len(self.labels_filters)):
             self.labels_filters[i] = QLabel(FILTERS[i], self)
             self.labels_filters[i].move(365, 10 + (i + 1) * 40)
-            self.labels_filters[i].resize(250, 30)
+            self.labels_filters[i].resize(165, 30)
+
+        # Create labels for filters (parameters)
+        for i in range(len(self.labels_filters)):
+            self.labels_parameters_filters[i] = QLabel(FILTER_PARAMETERS[i][0], self)
+            self.labels_parameters_filters[i].move(530, 10 + (i + 1) * 40)
+            self.labels_parameters_filters[i].resize(80, 30)
+
+        # Create textboxes for filters (parameters)
+        for i in range(len(self.textboxes_numbers_filters)):
+            self.textboxes_parameters_filters[i] = QLineEdit(FILTER_PARAMETERS[i][1], self)
+            self.textboxes_parameters_filters[i].move(620, 10 + (i + 1) * 40)
+            self.textboxes_parameters_filters[i].resize(160, 30)
+
+            if FILTERS[i] == 'Pixel sorting':
+                self.button_help_pixel_sorting = QPushButton('Help', self)
+                self.button_help_pixel_sorting.move(790, 10 + (i + 1) * 40)
+                self.button_help_pixel_sorting.resize(40, 30)
+                self.button_help_pixel_sorting.clicked.connect(self.on_help_pixel_sorting)
 
         # Create a button for pattern generation
         self.button_generate = QPushButton('Generate pattern', self)
@@ -82,20 +134,29 @@ class App(QMainWindow):
         self.button_generate.setEnabled(False)
         self.button_generate.clicked.connect(self.on_generate_pattern)
 
-        # Create a size label
-        self.label_size = QLabel('Size of pattern (in px):', self)
-        self.label_size.move(325, 275)
-        self.label_size.resize(150, 30)
+        # Create a width label
+        self.label_width = QLabel('Width of pattern (in px):', self)
+        self.label_width.move(325, 275)
+        self.label_width.resize(150, 30)
 
-        # Create a size textbox
-        self.textbox_size = QLineEdit(self)
-        self.textbox_size.move(485, 275)
-        self.textbox_size.resize(70, 30)
-        self.textbox_size.setText('1000')
+        # Create a width textbox
+        self.textbox_width = QLineEdit('1000', self)
+        self.textbox_width.move(485, 275)
+        self.textbox_width.resize(70, 30)
+
+        # Create a height label
+        self.label_height = QLabel('Height of pattern (in px):', self)
+        self.label_height.move(325, 315)
+        self.label_height.resize(150, 30)
+
+        # Create a height textbox
+        self.textbox_height = QLineEdit('1000', self)
+        self.textbox_height.move(485, 315)
+        self.textbox_height.resize(70, 30)
 
         # Create a status label
-        self.label_status = QLabel('', self)
-        self.label_status.move(25, 320)
+        self.label_status = QLabel(self)
+        self.label_status.move(25, 340)
         self.label_status.resize(550, 60)
         self.label_status.setWordWrap(True)
 
@@ -107,6 +168,23 @@ class App(QMainWindow):
         self.button_generate.setEnabled(len(keywords) > 0)
 
         self.label_status.setText('')
+
+    @pyqtSlot()
+    def on_help_pixel_sorting(self):
+        dialog = QDialog()
+        dialog.setWindowTitle('Pixel sorting: sorting path parameter help')
+        dialog.setFixedSize(700, 2 * 20 + len(PIXEL_SORTING_PARAMETERS_HELP) * 30)
+
+        for i, (name, label_description) in enumerate(PIXEL_SORTING_PARAMETERS_HELP):
+            label_name = QLabel(name, dialog)
+            label_name.move(20, 20 + i * 30)
+            label_name.resize(200, 20)
+
+            label_description = QLabel(label_description, dialog)
+            label_description.move(230, 20 + i * 30)
+            label_description.resize(450, 20)
+
+        dialog.exec_()
 
     @pyqtSlot()
     def on_generate_pattern(self):
@@ -124,36 +202,45 @@ class App(QMainWindow):
                 self.after_generate_pattern()
                 return
 
-        size = int(self.textbox_size.text())
+        width = int(self.textbox_width.text())
+        height = int(self.textbox_height.text())
 
-        pattern_generator.run(file, size, keywords, self.serial_no)
+        pattern_generator.run(file, width, height, keywords, self.serial_no)
 
         filters = []
-        for i, textbox in enumerate(self.textboxes_filters):
-            text = textbox.text()
-            if text:
-                filters.append((int(text), i))
+        for i in range(len(FILTERS)):
+            text_number = self.textboxes_numbers_filters[i].text()
+            text_parameter = self.textboxes_parameters_filters[i].text()
+            if text_number and text_parameter:
+                filters.append((i, int(text_number), text_parameter))
 
-        filters.sort(key=lambda x: x[0])
-        for (index, i) in filters:
+        filters.sort(key=lambda x: x[1])
+        for (i, number, parameter) in filters:
             # Elastic transform (liquify)
             if i == 0:
-                file = elastic_transform.run(file, alpha=2000, sigma=8)
+                file = elastic_transform.run(file, alpha=int(parameter), sigma=8)
             # Japanify
             elif i == 1:
-                file = japanify.run(file, density=75)
+                file = japanify.run(file, density=int(parameter))
             # Pixel sorting
             elif i == 2:
-                file = pixelsort.run(file)
+                tokens = parameter.split(',')
+                if tokens[0] not in PIXEL_SORTING_ALLOWED_PARAMETERS:
+                    self.label_status.setText('Pixel sorting parameter is not allowed or not formatted properly. ' +
+                                              'Check help.')
+                    self.after_generate_pattern()
+                    return
+                value = '' if len(tokens) == 1 else tokens[1]
+                file = pixelsort.run(file, sorting_path=tokens[0], value=value)
             # Smoothing
             elif i == 3:
-                file = smoothing.run(file, kernel_size=10)
+                file = smoothing.run(file, kernel_size=int(parameter))
             # Ripple effect
             elif i == 4:
-                file = ripple_effect.run(file, k=10)
+                file = ripple_effect.run(file, k=int(parameter))
 
         status = ['Pattern with serial number #' + str(self.serial_no) + ' successfully generated.',
-                  'Filters applied: ' + ', '.join([FILTERS[i] for _, i in filters])]
+                  'Filters applied: ' + ', '.join([FILTERS[i] for (i, _, _) in filters])]
         self.label_status.setText(status[0] + '\n' + status[1])
         print(util.timestamp() + ' ' + ' '.join(status) + '\n')
 
@@ -165,10 +252,16 @@ class App(QMainWindow):
         for textbox in self.textboxes_keywords:
             textbox.setEnabled(False)
 
-        for textbox in self.textboxes_filters:
+        for textbox in self.textboxes_numbers_filters:
             textbox.setEnabled(False)
 
-        self.textbox_size.setEnabled(False)
+        for textbox in self.textboxes_parameters_filters:
+            textbox.setEnabled(False)
+
+        self.button_help_pixel_sorting.setEnabled(False)
+
+        self.textbox_width.setEnabled(False)
+        self.textbox_height.setEnabled(False)
 
         self.button_generate.setEnabled(False)
 
@@ -178,10 +271,16 @@ class App(QMainWindow):
         for textbox in self.textboxes_keywords:
             textbox.setEnabled(True)
 
-        for textbox in self.textboxes_filters:
+        for textbox in self.textboxes_numbers_filters:
             textbox.setEnabled(True)
 
-        self.textbox_size.setEnabled(True)
+        for textbox in self.textboxes_parameters_filters:
+            textbox.setEnabled(True)
+
+        self.button_help_pixel_sorting.setEnabled(True)
+
+        self.textbox_width.setEnabled(True)
+        self.textbox_height.setEnabled(True)
 
         self.button_generate.setEnabled(True)
 

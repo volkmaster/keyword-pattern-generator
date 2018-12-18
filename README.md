@@ -5,6 +5,7 @@ Word Image Collage (Brand New Coexistence Exhibition) application for constructi
 `git clone https://github.com/volkmaster/word-image-collage.git`  
 ##### Download and install anaconda 3 from https://www.continuum.io/downloads
 ##### Install additional Python libraries:
+`pip install opencv-python`
 `pip install python-dotenv`  
 `conda install -c conda-forge google-api-python-client`  
 `pip install python-twitter`  

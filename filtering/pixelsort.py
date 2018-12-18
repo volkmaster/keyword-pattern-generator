@@ -170,7 +170,7 @@ def get_cli_args():
     parser.add_argument("--image-mask", type=str, default=None, help="Use a custom image for generating the mask")
     parser.add_argument("-i", "--max-interval", type=int, default=0,
                         help="The size of each sorting interval, in pixels. If 0, whole row is sorted. "
-                             "If intervals are randomized, then this is the maximum size of the inerval.")
+                             "If intervals are randomized, then this is the maximum size of the interval.")
     parser.add_argument("-m", "--mirror", action='store_true', default=False,
                         help="Make sorted intervals symmetric from start to end.")
     parser.add_argument("-p", "--path", type=parse_path_args, default="",
@@ -230,13 +230,18 @@ def print_paths_help():
     print(" - vertical:                     Pixels sorted vertically.")
 
 
-def run(source_image):
+def run(source_image, sorting_path='horizontal', value=''):
     print(util.timestamp() + ' Applying filter: Pixel sorting')
 
     tokens = source_image.split('.')
     destination_image = tokens[0] + '_pixelsorted.' + tokens[1]
 
-    sys.argv = ['', source_image, '-o', destination_image]
+    if sorting_path == 'angled-line':
+        sorting_path += ' angle=%s' % (value if value else '0')
+    elif sorting_path == 'fill-circles':
+        sorting_path += ' radius=%s' % (value if value else '100')
+
+    sys.argv = ['', source_image, '-o', destination_image, '-i', '100', '-r', '-p', sorting_path]
     args = get_cli_args()
 
     # print detailed help if necessary

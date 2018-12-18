@@ -25,16 +25,13 @@ def run(source_image, alpha, sigma, random_state=None):
     dy = gaussian_filter((random_state.rand(*shape) * 2 - 1), sigma, mode="constant", cval=0) * alpha
     dz = np.zeros_like(dx)
 
-    x, y, z = np.meshgrid(np.arange(shape[0]), np.arange(shape[1]), np.arange(shape[2]))
-    indices = np.reshape(y.transpose((1, 0, 2)) + dy, (-1, 1)), \
-              np.reshape(x.transpose((1, 0, 2)) + dx, (-1, 1)), \
-              np.reshape(z.transpose((1, 0, 2)), (-1, 1))
+    x, y, z = np.meshgrid(np.arange(shape[1]), np.arange(shape[0]), np.arange(shape[2]))
+    indices = np.reshape(y + dy, (-1, 1)), np.reshape(x + dx, (-1, 1)), np.reshape(z, (-1, 1))
 
     distored_image = map_coordinates(image, indices, order=1, mode='reflect')
     distored_image = distored_image.reshape(image.shape)
 
     image = Image.fromarray(distored_image)
-    image = image.rotate(-90)
     image.save(destination_image)
 
     return destination_image
