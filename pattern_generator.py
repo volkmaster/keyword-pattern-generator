@@ -97,8 +97,10 @@ def generate_images(keywords):
     for keyword in keywords:
         for file in listdir('cache/' + keyword + '/images/'):
             try:
-                img_cache = load_cache_image(keyword, file)
-                images.append(img_cache)
+                img = load_cache_image(keyword, file)
+                # width, height = img.size
+                # img = img.resize((round(2 * width), round(2 * height)), Image.ANTIALIAS)
+                images.append(img)
             except OSError:
                 pass
 
@@ -133,7 +135,7 @@ def generate_overlay_text(keywords, typeface):
     # Format text lines from Wikipedia cache text.
     for keyword in keywords:
         if path.exists('cache/' + keyword + '/text/wikipedia.txt') and len(lines) < n_cols * column_lines:
-            lines += get_overlay_text_lines(text=load_cache_text(keywords[0], 'wikipedia'), line_chars=column_chars)
+            lines += get_overlay_text_lines(text=load_cache_text(keyword, 'wikipedia'), line_chars=column_chars)
 
             # Append random number of new lines (blank space).
             lines += random.randint(0, MAX_BLANKS) * ['\n']
