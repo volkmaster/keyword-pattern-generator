@@ -13,9 +13,11 @@ def run(query, text_dir):
     wikipedia = wikipediaapi.Wikipedia('en')
 
     page = wikipedia.page(query.title())
+    text = ''
     if not page.exists():
-        # raise util.Error('Wikipedia page for keyword "' + query + '" does not exist.')
-        pass
+        print('Wikipedia page for keyword "' + query + '" does not exist. Creating an empty file')
     else:
-        with open(text_dir + '/wikipedia.txt', 'w', encoding="utf-8") as file:
-            file.write(page.text)
+        text = page.text
+
+    with open(text_dir + '/wikipedia.txt', 'w', encoding="utf-8") as file:
+        file.write(text)

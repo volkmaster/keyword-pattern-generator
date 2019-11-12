@@ -42,6 +42,7 @@ def main():
             time.sleep(settings.PRINT_DELAY)
     else:
         # generate a single document based on 3 random keywords
+        random.shuffle(keywords)
         document_generator.run(keywords[:3], serial_no, include_data=True)
         increment_serial_no(serial_no)
 

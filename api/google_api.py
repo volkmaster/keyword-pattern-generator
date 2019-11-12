@@ -2,6 +2,7 @@ from googleapiclient.discovery import build
 import urllib.request
 import urllib.error
 import ssl
+import hashlib
 import util
 import settings
 
@@ -48,6 +49,7 @@ def run(query, images_dir):
                 if filename.lower().endswith(('png', 'jpg', 'jpeg', 'tiff', 'gif', 'bmp')):
                     try:
                         print(url)
+                        filename = hashlib.sha1(filename.encode('utf-8')).hexdigest()
                         urllib.request.urlretrieve(url, images_dir + '/' + filename)
                     except (urllib.error.URLError, ssl.CertificateError):
                         pass
