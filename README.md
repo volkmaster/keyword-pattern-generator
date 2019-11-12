@@ -11,7 +11,7 @@ Generated images are placed in `images` folder.
 
 ##### Clone the git repository
 
-`git clone https://github.com/volkmaster/word-image-collage.git`
+`git clone https://github.com/volkmaster/keyword-pattern-generator.git`
 
 ##### Install Python >=3.5
 
