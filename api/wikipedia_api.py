@@ -17,5 +17,5 @@ def run(query, text_dir):
         # raise util.Error('Wikipedia page for keyword "' + query + '" does not exist.')
         pass
     else:
-        with open(text_dir + '/wikipedia.txt', 'w') as file:
+        with open(text_dir + '/wikipedia.txt', 'w', encoding="utf-8") as file:
             file.write(page.text)

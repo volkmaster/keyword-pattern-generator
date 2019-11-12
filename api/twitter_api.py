@@ -18,5 +18,5 @@ def run(query, text_dir):
 
     statuses = api.GetSearch(term=query, count=50, lang='en')
     text = '\n'.join([s.text for s in statuses])
-    with open(text_dir + '/twitter.txt', 'w') as file:
+    with open(text_dir + '/twitter.txt', 'w', encoding="utf-8") as file:
         file.write(text)
