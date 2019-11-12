@@ -2,11 +2,8 @@
 .DS_Store
 .idea/
 cache/
-examples/
-images/
-document.png
+images/*.png
 serial_number.txt
-specs.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
