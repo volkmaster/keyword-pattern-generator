@@ -6,7 +6,7 @@ Word Image Collage (Brand New Coexistence Exhibition) application for constructi
 ##### Download and install anaconda 3 from https://www.continuum.io/downloads
 ##### Install additional Python libraries:
 ```
-pip install opencv-python
+conda install -c conda-forge opencv
 pip install python-dotenv
 conda install -c conda-forge google-api-python-client
 pip install python-twitter
