@@ -10,7 +10,7 @@ import settings
 __author__ = 'Ziga Vucko'
 
 
-def search_images(service, query, size='xlarge', start=1):
+def search_images(service, query, size='XLARGE', start=1):
     return service.cse().list(
         cx=settings.GOOGLE_SEARCH_ENGINE_ID,
         q=query,
