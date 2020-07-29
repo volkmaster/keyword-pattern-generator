@@ -11,19 +11,37 @@ Generated images are placed in `images` folder.
 
 ##### Clone the git repository
 
-`git clone https://github.com/volkmaster/keyword-pattern-generator.git`
+```
+git clone https://github.com/volkmaster/keyword-pattern-generator.git
+```
 
-##### Install Python >=3.5
+##### Install Python >=3.6
 
 https://www.python.org/downloads/
 
 ##### Install Poetry
 
-`curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python`
+```
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+```
+
+##### Create virtual environment and activate it
+
+```
+python -m venv venv
+
+# OS X / Linux
+source venv/bin/activate
+
+# Windows
+.\venv\Scripts\activate
+```
 
 ##### Install dependencies
 
-`poetry install`
+```
+poetry install
+```
 
 This will create a new virtual environment and install the dependencies in it.
 
@@ -35,8 +53,6 @@ This will create a new virtual environment and install the dependencies in it.
 - Copy `serial_number.example` to `serial_number.txt`.
 
 ##### Run the program
-
-Spawn a shell within the virtual environment: `poetry shell`
 
 - Generate a document based on 3 random keywords:
 
