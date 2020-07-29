@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QLabel, QLineEdit, QPushButton
 from PyQt5.QtCore import pyqtSlot
 from api import api_caller
-from filtering import elastic_transform, japanify, pixelsort, smoothing, ripple_effect
+from filtering import elastic_transform, japanify, pixelsort, smoothing, ripple_effect, segmentation
 import pattern_generator
 import util
 
@@ -10,8 +10,8 @@ import util
 __author__ = 'Ziga Vucko'
 
 
-FILTERS = ['Elastic transform (liquify)', 'Japanify', 'Pixel sorting', 'Smoothing', 'Ripple effect']
-FILTER_PARAMETERS = [('Alpha', '10000'), ('Density', '50'), ('Sorting path', 'diagonal'), ('Kernel size', '10'), ('K', '5')]
+FILTERS = ['Elastic transform (liquify)', 'Japanify', 'Pixel sorting', 'Smoothing', 'Ripple effect', 'Segmentation']
+FILTER_PARAMETERS = [('Alpha', '10000'), ('Density', '50'), ('Sorting path', 'diagonal'), ('Kernel size', '10'), ('K', '5'), ('Weight', '29')]
 
 PIXEL_SORTING_ALLOWED_PARAMETERS = [
     'angled-line',
@@ -48,7 +48,7 @@ class App(QMainWindow):
 
         self.title = 'Keyword Pattern Generator'
         self.width = 850
-        self.height = 400
+        self.height = 420
 
         self.label_title_keywords = None
         self.textboxes_keywords = [None, None, None, None, None]
@@ -93,7 +93,7 @@ class App(QMainWindow):
             self.textboxes_keywords[i].textChanged.connect(self.on_keyword_change)
 
         # Create a title label for filters
-        self.label_title_keywords = QLabel('Order filters (1-5 / empty) and fill out parameters:', self)
+        self.label_title_keywords = QLabel(f'Order filters (1-{len(FILTERS)} / empty) and fill out parameters:', self)
         self.label_title_keywords.move(325, 10)
         self.label_title_keywords.resize(300, 30)
 
@@ -136,22 +136,22 @@ class App(QMainWindow):
 
         # Create a width label
         self.label_width = QLabel('Width of pattern (in px):', self)
-        self.label_width.move(325, 275)
+        self.label_width.move(325, 315)
         self.label_width.resize(150, 30)
 
         # Create a width textbox
         self.textbox_width = QLineEdit('1000', self)
-        self.textbox_width.move(485, 275)
+        self.textbox_width.move(485, 315)
         self.textbox_width.resize(70, 30)
 
         # Create a height label
         self.label_height = QLabel('Height of pattern (in px):', self)
-        self.label_height.move(325, 315)
+        self.label_height.move(325, 355)
         self.label_height.resize(150, 30)
 
         # Create a height textbox
         self.textbox_height = QLineEdit('1000', self)
-        self.textbox_height.move(485, 315)
+        self.textbox_height.move(485, 355)
         self.textbox_height.resize(70, 30)
 
         # Create a status label
@@ -238,6 +238,9 @@ class App(QMainWindow):
             # Ripple effect
             elif i == 4:
                 file = ripple_effect.run(file, k=int(parameter))
+            # Segmentation
+            elif i == 5:
+                file = segmentation.run(file, weight=int(parameter))
 
         status = ['Pattern with serial number #' + str(self.serial_no) + ' successfully generated.',
                   'Filters applied: ' + ', '.join([FILTERS[i] for (i, _, _) in filters])]
