@@ -48,7 +48,7 @@ class App(QMainWindow):
 
         self.title = 'Keyword Pattern Generator'
         self.width = 850
-        self.height = 420
+        self.height = 455
 
         self.label_title_keywords = None
         self.textboxes_keywords = [None, None, None, None, None]
@@ -156,7 +156,7 @@ class App(QMainWindow):
 
         # Create a status label
         self.label_status = QLabel(self)
-        self.label_status.move(25, 340)
+        self.label_status.move(25, 395)
         self.label_status.resize(550, 60)
         self.label_status.setWordWrap(True)
 
