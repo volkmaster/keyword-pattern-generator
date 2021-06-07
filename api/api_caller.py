@@ -13,7 +13,8 @@ def run(query):
     """
     dir_name = query.lower().replace(' ', '')
 
-    root_dir = 'cache/' + dir_name
+    storage_dir = '/tmp'
+    root_dir = storage_dir + '/cache/' + dir_name
     images_dir = root_dir + '/images'
     text_dir = root_dir + '/text'
     twitter_file = text_dir + '/twitter.txt'

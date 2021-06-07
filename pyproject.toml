@@ -19,6 +19,10 @@ numpy = "1.17.4"
 tqdm = "4.38.0"
 scikit-image = "^0.17.2"
 PyQt5-stubs = "^5.14"
+google-cloud-translate = "2.0.1"
+google-cloud-storage="1.38.0"
+nltk = "^3.6"
+num2words = "^0.5.10"
 
 [build-system]
 requires = ["poetry>=0.12"]

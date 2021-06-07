@@ -4,6 +4,7 @@
 cache/
 images/*.png
 serial_number.txt
+tmp/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
