@@ -16,7 +16,7 @@ def run(query, text_dir):
                       access_token_key=settings.TWITTER_ACCESS_TOKEN_KEY,
                       access_token_secret=settings.TWITTER_ACCESS_TOKEN_SECRET)
 
-    statuses = api.GetSearch(term=query, count=50, lang='en')
+    statuses = api.GetSearch(term=query, count=10, lang='en')
     text = '\n'.join([s.text for s in statuses])
     with open(text_dir + '/twitter.txt', 'w', encoding="utf-8") as file:
         file.write(text)

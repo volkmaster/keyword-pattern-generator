@@ -1,6 +1,7 @@
 from googleapiclient.discovery import build
 import urllib.request
 import urllib.error
+import socket
 import ssl
 import hashlib
 import util
@@ -8,6 +9,9 @@ import settings
 
 
 __author__ = 'Ziga Vucko'
+
+
+socket.setdefaulttimeout(10)
 
 
 def search_images(service, query, size='XLARGE', start=1):
@@ -39,7 +43,7 @@ def run(query, images_dir):
     service = build('customsearch', 'v1', developerKey=settings.GOOGLE_API_KEY, cache_discovery=False)
 
     # Call the API, parse the JSON response, download the images and cache them.
-    for i in range(3):
+    for i in range(1):
         response = search_images(service, query, start=i*10+1)
 
         if 'items' in response:
@@ -51,6 +55,7 @@ def run(query, images_dir):
                         print(url)
                         filename = hashlib.sha1(filename.encode('utf-8')).hexdigest()
                         urllib.request.urlretrieve(url, images_dir + '/' + filename)
-                    except (urllib.error.URLError, ssl.CertificateError):
+                    except (socket.timeout, urllib.error.URLError, ssl.CertificateError) as e:
+                        print(e)
                         pass
 

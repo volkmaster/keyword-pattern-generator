@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "word-image-collage"
+name = "keyword-patter-generator"
 version = "0.1.0"
 description = ""
 authors = ["Ziga Vucko <ziga.vucko@gmail.com>"]

@@ -11,6 +11,7 @@ import util
 __author__ = 'Ziga Vucko'
 
 
+LAMBDA_DIR = "tmp"
 SIZE = (0, 0)
 N_COLS = [2, 3, 4, 5, 6, 7]
 MAX_BLANKS = 5
@@ -42,7 +43,7 @@ def load_font(typeface, font_size):
 
 
 def load_cache_text(keyword, type):
-    return unidecode(open('cache/' + keyword + '/text/' + type + '.txt', 'r', encoding='utf_8').read())
+    return unidecode(open(LAMBDA_DIR + '/cache/' + keyword + '/text/' + type + '.txt', 'r', encoding='utf_8').read())
 
 
 def load_data_text(file_name, type):
@@ -50,7 +51,7 @@ def load_data_text(file_name, type):
 
 
 def load_cache_image(keyword, file_name):
-    return Image.open('cache/' + keyword + '/images/' + file_name)
+    return Image.open(LAMBDA_DIR + '/cache/' + keyword + '/images/' + file_name)
 
 
 def get_overlay_text_lines(text, line_chars=30):
@@ -95,7 +96,7 @@ def generate_images(keywords):
 
     # Load images from the cache.
     for keyword in keywords:
-        for file in listdir('cache/' + keyword + '/images/'):
+        for file in listdir(LAMBDA_DIR + '/cache/' + keyword + '/images/'):
             try:
                 img = load_cache_image(keyword, file)
                 # width, height = img.size
@@ -128,27 +129,27 @@ def generate_overlay_text(keywords, typeface):
     lines = []
 
     # Format text lines from the randomly chosen long data texts.
-    files = listdir('data/text/long')
-    random.shuffle(files)
-    unused_files = list(files)
+    # files = listdir('data/text/long')
+    # random.shuffle(files)
+    # unused_files = list(files)
 
     # Format text lines from Wikipedia cache text.
     for keyword in keywords:
-        if path.exists('cache/' + keyword + '/text/wikipedia.txt') and len(lines) < n_cols * column_lines:
+        if path.exists(LAMBDA_DIR + '/cache/' + keyword + '/text/wikipedia.txt') and len(lines) < n_cols * column_lines:
             lines += get_overlay_text_lines(text=load_cache_text(keyword, 'wikipedia'), line_chars=column_chars)
 
             # Append random number of new lines (blank space).
             lines += random.randint(0, MAX_BLANKS) * ['\n']
 
     # Format text lines from the randomly chosen long data texts (if necessary).
-    i = 0
-    while len(lines) < n_cols * column_lines and i < len(unused_files):
-        lines += get_overlay_text_lines(text=load_data_text(unused_files[i], 'long'), line_chars=column_chars)
-
-        # Append random number of new lines (blank space).
-        lines += random.randint(0, MAX_BLANKS) * ['\n']
-
-        i += 1
+    # i = 0
+    # while len(lines) < n_cols * column_lines and i < len(unused_files):
+    #     lines += get_overlay_text_lines(text=load_data_text(unused_files[i], 'long'), line_chars=column_chars)
+    #
+    #     # Append random number of new lines (blank space).
+    #     lines += random.randint(0, MAX_BLANKS) * ['\n']
+    #
+    #     i += 1
 
     # Use formatted text lines to build column canvases.
     canvases = []
@@ -170,23 +171,23 @@ def generate_twitter_overlay_text(keywords, typeface):
     char_height = font.getsize('a')[1]
     max_chars = 25
 
-    if random.random() < 0.5:
-        # Format a text line from Twitter cache text using just the longest tweet.
-        # Iterate because some 'twitter.txt' files might be empty (no tweets exist for the given keyword).
-        n_lines = 0
-        while n_lines is 0:
-            lines = get_cache_overlay_text_lines(text=load_cache_text(keyword, 'twitter'), line_chars=max_chars)
-            n_lines = len(lines)
-            keyword = random.choice(keywords)
-        text_width = round(font.getsize(lines[np.argmax(list(map(lambda l: len(l), lines)))])[0] * 1.15)
-        text_height = n_lines * char_height
-    else:
-        # Format a text line from a random long data text.
-        files = listdir('data/text/short')
-        random.shuffle(files)
-        lines = get_data_overlay_text_lines(text=load_data_text(files[0], 'short'), line_chars=max_chars)
-        text_width = round(font.getsize(lines[np.argmax(list(map(lambda l: len(l), lines)))])[0] * 1.15)
-        text_height = len(lines) * char_height
+    # if random.random() < 0.5:
+    # Format a text line from Twitter cache text using just the longest tweet.
+    # Iterate because some 'twitter.txt' files might be empty (no tweets exist for the given keyword).
+    n_lines = 0
+    while n_lines is 0:
+        lines = get_cache_overlay_text_lines(text=load_cache_text(keyword, 'twitter'), line_chars=max_chars)
+        n_lines = len(lines)
+        keyword = random.choice(keywords)
+    text_width = round(font.getsize(lines[np.argmax(list(map(lambda l: len(l), lines)))])[0] * 1.15)
+    text_height = n_lines * char_height
+    # else:
+    #     # Format a text line from a random long data text.
+    #     files = listdir('data/text/short')
+    #     random.shuffle(files)
+    #     lines = get_data_overlay_text_lines(text=load_data_text(files[0], 'short'), line_chars=max_chars)
+    #     text_width = round(font.getsize(lines[np.argmax(list(map(lambda l: len(l), lines)))])[0] * 1.15)
+    #     text_height = len(lines) * char_height
 
     # Use formatted text line to build the canvas.
     return build_text_canvas(lines, font, text_width, text_height, align='right', transparent=True)

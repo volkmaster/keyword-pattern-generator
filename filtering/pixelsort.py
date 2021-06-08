@@ -231,7 +231,7 @@ def print_paths_help():
 
 
 def run(source_image, sorting_path='horizontal', value=''):
-    print(util.timestamp() + ' Applying filter: Pixel sorting')
+    print(util.timestamp() + ' Applying filter: Pixel sorting (' + sorting_path + ')')
 
     tokens = source_image.split('.')
     destination_image = tokens[0] + '_pixelsorted.' + tokens[1]
